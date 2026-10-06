@@ -1,0 +1,172 @@
+{% extends "base.html" %}
+
+{% block title %}Customer Survey | Online Survey Platform{% endblock %}
+
+{% block content %}
+<!-- Live Sticky Progress Bar -->
+<div class="survey-progress-wrapper">
+  <div class="container container-narrow">
+    <div class="progress-header">
+      <span>Survey Progress</span>
+      <span id="progress-percent">0%</span>
+    </div>
+    <div class="progress-track">
+      <div id="survey-progress-bar" class="progress-bar-fill"></div>
+    </div>
+  </div>
+</div>
+
+<div class="container container-narrow" style="padding-bottom: 4rem;">
+  <!-- Survey Intro Header -->
+  <div class="card" style="border-top: 4px solid var(--primary); margin-bottom: 2rem;">
+    <h1 class="card-title" style="font-size: 1.8rem; margin-bottom: 0.5rem;">Customer Experience &amp; Satisfaction Survey</h1>
+    <p class="card-subtitle" style="font-size: 1.05rem; line-height: 1.6;">
+      We value your feedback. Please take a few minutes to share your experience with our product/service.
+      Your responses will help us understand customer needs and improve our services.
+    </p>
+  </div>
+
+  <form id="survey-form" action="{{ url_for('submit_survey') }}" method="POST" enctype="multipart/form-data">
+    <!-- Customer Contact Card -->
+    <div class="card">
+      <div class="card-header" style="border-bottom: 1px solid var(--border-color); padding-bottom: 1rem;">
+        <div>
+          <h2 class="card-title" style="font-size: 1.2rem;">Customer Information</h2>
+          <p class="card-subtitle">Please provide your contact details for submission confirmation.</p>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="customer_name">Full Name <span style="color: var(--danger);">*</span></label>
+        <input type="text" id="customer_name" name="customer_name" class="form-control" placeholder="e.g. Jane Doe" value="{{ default_name }}" data-required="true" required />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="customer_email">Email Address <span style="color: var(--danger);">*</span></label>
+        <input type="email" id="customer_email" name="customer_email" class="form-control" placeholder="jane.doe@example.com" value="{{ default_email }}" data-required="true" required />
+      </div>
+
+      <div class="form-group" style="margin-bottom: 0;">
+        <label class="form-label" for="customer_phone">Phone Number <span style="color: var(--text-muted); font-size: 0.85rem;">(Optional)</span></label>
+        <input type="tel" id="customer_phone" name="customer_phone" class="form-control" placeholder="+1 (555) 000-0000" />
+      </div>
+    </div>
+
+    <!-- Dynamic Questions Section -->
+    {% if questions %}
+      {% for q in questions %}
+        <div class="card question-card {% if q.required %}required{% endif %}">
+          <div class="question-header">
+            <div class="question-number">{{ loop.index }}</div>
+            <div class="question-title-wrap">
+              <div class="question-text">
+                {{ q.question }}
+                {% if q.required %}<span style="color: var(--danger);">*</span>{% endif %}
+              </div>
+              <div style="display: flex; gap: 0.4rem; margin-top: 0.35rem;">
+                {% if q.required %}
+                  <span class="badge badge-required">Required</span>
+                {% else %}
+                  <span class="badge badge-optional">Optional</span>
+                {% endif %}
+                <span class="badge badge-type">{{ q.type }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Question Input Rendering -->
+          <div class="question-body" style="margin-top: 1rem;">
+            {% if q.type == 'radio' %}
+              <div class="options-list">
+                {% for opt in q.options %}
+                  <label class="option-item">
+                    <input type="radio" name="q_{{ q.id }}" value="{{ opt }}" {% if q.required %}data-required="true" required{% endif %} />
+                    <span>{{ opt }}</span>
+                  </label>
+                {% endfor %}
+              </div>
+
+            {% elif q.type == 'checkbox' %}
+              <div class="options-list">
+                {% for opt in q.options %}
+                  <label class="option-item">
+                    <input type="checkbox" name="q_{{ q.id }}" value="{{ opt }}" {% if q.required %}data-required="true"{% endif %} />
+                    <span>{{ opt }}</span>
+                  </label>
+                {% endfor %}
+              </div>
+
+            {% elif q.type == 'yes_no' %}
+              <div class="options-list">
+                <label class="option-item">
+                  <input type="radio" name="q_{{ q.id }}" value="Yes" {% if q.required %}data-required="true" required{% endif %} />
+                  <span>&#10003; Yes</span>
+                </label>
+                <label class="option-item">
+                  <input type="radio" name="q_{{ q.id }}" value="No" {% if q.required %}data-required="true" required{% endif %} />
+                  <span>&#10007; No</span>
+                </label>
+              </div>
+
+            {% elif q.type == 'rating' %}
+              <div class="rating-group">
+                {% for star in [1, 2, 3, 4, 5] %}
+                  <div class="rating-option">
+                    <input type="radio" id="rating_{{ q.id }}_{{ star }}" name="q_{{ q.id }}" value="{{ star }}" {% if q.required %}data-required="true" required{% endif %} />
+                    <label class="rating-label" for="rating_{{ q.id }}_{{ star }}">
+                      <span>{{ star }}</span>
+                    </label>
+                  </div>
+                {% endfor %}
+              </div>
+              <small style="color: var(--text-muted); display: block; margin-top: 0.5rem;">
+                1 = Very Poor, 5 = Excellent
+              </small>
+
+            {% elif q.type == 'textarea' %}
+              <textarea name="q_{{ q.id }}" class="form-control" placeholder="Share your thoughts here..." {% if q.required %}data-required="true" required{% endif %}></textarea>
+
+            {% else %}
+              <!-- Default short text -->
+              <input type="text" name="q_{{ q.id }}" class="form-control" placeholder="Your answer..." {% if q.required %}data-required="true" required{% endif %} />
+            {% endif %}
+          </div>
+        </div>
+      {% endfor %}
+    {% else %}
+      <div class="card" style="text-align: center; padding: 3rem;">
+        <h3 style="color: var(--text-muted);">No active survey questions available right now.</h3>
+        <p style="color: var(--text-light); margin-top: 0.5rem;">Please check back later or contact your administrator.</p>
+      </div>
+    {% endif %}
+
+    <!-- Optional File Attachment (Azure Files) -->
+    <div class="card">
+      <div class="card-header" style="margin-bottom: 1rem;">
+        <div>
+          <h2 class="card-title" style="font-size: 1.2rem;">Optional File Attachment</h2>
+          <p class="card-subtitle">Upload a screenshot, document, or PDF to support your feedback (Stored securely in Azure Files).</p>
+        </div>
+      </div>
+
+      <label for="optional_attachment" class="file-dropzone" id="file-dropzone" style="display: block; cursor: pointer;">
+        <div id="dropzone-prompt">
+          <div class="file-dropzone-icon">&#128193;</div>
+          <div style="font-weight: 600; color: var(--text-main);">Click or Drag &amp; Drop a file to upload</div>
+          <div style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.25rem;">Supported: PNG, JPG, PDF, DOCX (Max 10MB)</div>
+        </div>
+        <input type="file" id="optional_attachment" name="optional_attachment" style="display: none;" accept=".png,.jpg,.jpeg,.pdf,.doc,.docx,.txt" />
+        <div id="file-preview" class="file-preview-card" style="display: none;"></div>
+      </label>
+    </div>
+
+    <!-- Form Submit Actions -->
+    <div style="text-align: center; margin-top: 2rem;">
+      <button type="submit" class="btn btn-primary btn-lg" style="min-width: 250px;">
+        <span>Submit Survey Response</span> &#10003;
+      </button>
+    </div>
+  </form>
+</div>
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+{% endblock %}

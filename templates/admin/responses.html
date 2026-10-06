@@ -1,0 +1,76 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}Survey Responses | Admin Portal{% endblock %}
+
+{% block admin_content %}
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+  <div>
+    <h1 class="card-title" style="font-size: 1.85rem; font-weight: 800; color: #0f172a;">Customer Responses</h1>
+    <p class="card-subtitle">Survey submissions stored permanently in Azure Cosmos DB (Responses Container).</p>
+  </div>
+  <a href="{{ url_for('admin_dashboard') }}" class="btn btn-secondary">
+    &larr; Back to Dashboard
+  </a>
+</div>
+
+<div class="card">
+  <div class="card-header" style="border-bottom: 1px solid var(--border-color); padding-bottom: 1rem;">
+    <div>
+      <h2 class="card-title" style="font-size: 1.25rem;">All Submitted Records ({{ responses | length }})</h2>
+      <p class="card-subtitle">Showing latest submissions first.</p>
+    </div>
+  </div>
+
+  {% if responses %}
+    <div class="table-responsive">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Response ID</th>
+            <th>Customer Name</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Attachment (Azure Files)</th>
+            <th>Submission Date (UTC)</th>
+            <th style="text-align: right;">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for r in responses %}
+            <tr>
+              <td><code>{{ r.id }}</code></td>
+              <td><strong>{{ r.name }}</strong></td>
+              <td>{{ r.email }}</td>
+              <td style="color: var(--text-muted);">{{ r.phone or '&mdash;' | safe }}</td>
+              <td>
+                {% if r.attachment %}
+                  <a href="{{ url_for('view_attachment', filename=r.attachment) }}" target="_blank" rel="noopener noreferrer" class="badge badge-active" style="text-decoration: none; display: inline-flex; align-items: center; gap: 4px;" title="Open attachment">
+                    &#128193; View Attachment
+                  </a>
+                {% else %}
+                  <span style="color: var(--text-light);">&mdash;</span>
+                {% endif %}
+              </td>
+              <td style="color: var(--text-muted); font-size: 0.85rem;">
+                {{ r.submitted_at[:19] | replace('T', ' ') if r.submitted_at else 'N/A' }}
+              </td>
+              <td style="text-align: right;">
+                <a href="{{ url_for('admin_response_detail', response_id=r.id) }}" class="btn btn-secondary btn-sm">
+                  View Full Response &rarr;
+                </a>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div style="text-align: center; padding: 3rem; color: var(--text-muted);">
+      <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">&#128221;</div>
+      <h3>No responses recorded yet</h3>
+      <p style="color: var(--text-light); margin-top: 0.25rem;">Share your survey link with users to start collecting customer feedback.</p>
+      <a href="{{ url_for('survey') }}" target="_blank" class="btn btn-primary" style="margin-top: 1.5rem;">Open Public Survey</a>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

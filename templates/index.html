@@ -1,0 +1,58 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Customer Experience & Satisfaction Survey | Online Survey Platform{% endblock %}
+
+{% block content %}
+<section class="hero-section">
+  <div class="container container-narrow">
+    <div class="hero-badge">&#128221; Feedback Matters</div>
+    <h1 class="hero-title">Customer Experience &amp; <span>Satisfaction Survey</span></h1>
+    <p class="hero-desc">
+      We value your feedback. Please take a few minutes to share your experience with our product/service.
+      Your responses will help us understand customer needs and improve our services.
+    </p>
+
+    <div class="hero-actions">
+      <a href="{{ url_for('survey') }}" class="btn btn-primary btn-lg">
+        <span>Start Survey</span> &#8594;
+      </a>
+      {% if not current_user %}
+        <a href="{{ url_for('login') }}" class="btn btn-secondary btn-lg">
+          <span>Admin Login</span>
+        </a>
+      {% elif is_admin_user %}
+        <a href="{{ url_for('admin_dashboard') }}" class="btn btn-secondary btn-lg">
+          <span>Admin Dashboard</span>
+        </a>
+      {% endif %}
+    </div>
+
+    <!-- Feature Grid -->
+    <div class="feature-grid">
+      <div class="feature-box">
+        <div class="feature-icon">&#9881;</div>
+        <h3>Dynamic Question Engine</h3>
+        <p>Questions are loaded dynamically from Azure Cosmos DB. Manage and customize surveys in real-time without writing code.</p>
+      </div>
+
+      <div class="feature-box">
+        <div class="feature-icon">&#128202;</div>
+        <h3>Live Response Analytics</h3>
+        <p>Instant breakdown and percentage metrics across satisfaction scores, choices, and customer feedback.</p>
+      </div>
+
+      <div class="feature-box">
+        <div class="feature-icon">&#128193;</div>
+        <h3>Azure Files Attachments</h3>
+        <p>Seamlessly upload and store optional images, documents, and feedback files in Azure File Share.</p>
+      </div>
+
+      <div class="feature-box">
+        <div class="feature-icon">&#128272;</div>
+        <h3>Microsoft Entra ID</h3>
+        <p>Enterprise-grade identity authentication and role-based access control protecting administrative endpoints.</p>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

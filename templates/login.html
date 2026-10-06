@@ -1,0 +1,52 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Sign In | Online Survey Platform{% endblock %}
+
+{% block content %}
+<div class="container container-narrow" style="padding-top: 3rem; padding-bottom: 4rem;">
+  <div class="card" style="max-width: 480px; margin: 0 auto; text-align: center;">
+    <div class="brand-icon" style="margin: 0 auto 1.25rem; width: 50px; height: 50px; font-size: 1.5rem;">&#128272;</div>
+    <h2 class="card-title">Sign In to SurveyPulse</h2>
+    <p class="card-subtitle" style="margin-bottom: 2rem;">
+      Authenticate with your Microsoft corporate or school account to access survey features and the Admin Portal.
+    </p>
+
+    <!-- Microsoft Entra Sign-In -->
+    <a href="{{ url_for('login') }}" class="btn btn-primary btn-block btn-lg" style="margin-bottom: 1.5rem;">
+      <svg width="20" height="20" viewBox="0 0 21 21" fill="none" style="vertical-align: middle; margin-right: 8px;">
+        <rect x="1" y="1" width="9" height="9" fill="#f25022"/>
+        <rect x="11" y="1" width="9" height="9" fill="#7fba00"/>
+        <rect x="1" y="11" width="9" height="9" fill="#00a4ef"/>
+        <rect x="11" y="11" width="9" height="9" fill="#ffb900"/>
+      </svg>
+      <span>Sign In with Microsoft Entra ID</span>
+    </a>
+
+    <div style="display: flex; align-items: center; margin: 1.5rem 0; color: var(--text-muted); font-size: 0.85rem;">
+      <div style="flex: 1; height: 1px; background: var(--border-color);"></div>
+      <span style="padding: 0 0.75rem;">LOCAL / DEMO ACCESS</span>
+      <div style="flex: 1; height: 1px; background: var(--border-color);"></div>
+    </div>
+
+    <!-- Quick Local Dev Sign-In -->
+    <form action="{{ url_for('dev_login') }}" method="POST" style="text-align: left;">
+      <div class="form-group">
+        <label class="form-label" for="dev_name">Full Name</label>
+        <input type="text" id="dev_name" name="name" class="form-control" placeholder="e.g. Administrator" value="Admin User" required />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="dev_email">Email Address</label>
+        <input type="email" id="dev_email" name="email" class="form-control" placeholder="admin@example.com" value="admin@example.com" required />
+        <small style="color: var(--text-muted); font-size: 0.8rem; display: block; margin-top: 0.35rem;">
+          Tip: Enter an email configured in your <code>ADMIN_EMAILS</code> environment variable to test Admin access.
+        </small>
+      </div>
+
+      <button type="submit" class="btn btn-secondary btn-block">
+        Continue with Demo Profile
+      </button>
+    </form>
+  </div>
+</div>
+{% endblock %}

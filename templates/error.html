@@ -1,0 +1,22 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Error {{ error_code }} | Online Survey Platform{% endblock %}
+
+{% block content %}
+<div class="container container-narrow" style="padding-top: 4rem; padding-bottom: 5rem; text-align: center;">
+  <div class="card" style="max-width: 520px; margin: 0 auto; padding: 3rem 2rem;">
+    <div style="font-size: 3.5rem; font-weight: 800; color: var(--primary); line-height: 1; margin-bottom: 1rem;">
+      {{ error_code or 500 }}
+    </div>
+    <h2 class="card-title" style="margin-bottom: 0.75rem;">{{ error_message or "An unexpected issue occurred" }}</h2>
+    <p class="card-subtitle" style="margin-bottom: 2rem;">
+      We could not complete your request. Please verify your connection or return to the home page.
+    </p>
+
+    <div style="display: flex; justify-content: center; gap: 1rem;">
+      <a href="{{ url_for('index') }}" class="btn btn-primary">Back to Safety</a>
+      <a href="{{ url_for('survey') }}" class="btn btn-secondary">Take Survey</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

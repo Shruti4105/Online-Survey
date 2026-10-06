@@ -1,0 +1,16 @@
+﻿__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+env
+venv
+.env
+.git
+.gitignore
+.dockerignore
+static/uploads/*
+!static/uploads/.gitkeep
+README.md
+AZURE_DEPLOYMENT.md
+

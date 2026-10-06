@@ -1,0 +1,87 @@
+﻿{% extends "admin/base_admin.html" %}
+
+{% block title %}Add New Question | Admin Portal{% endblock %}
+
+{% block admin_content %}
+<div class="container-narrow" style="margin: 0 auto;">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+    <div>
+      <h1 class="card-title" style="font-size: 1.85rem; font-weight: 800; color: #0f172a;">Add New Survey Question</h1>
+      <p class="card-subtitle">Create a question to be stored in Azure Cosmos DB.</p>
+    </div>
+    <a href="{{ url_for('admin_questions') }}" class="btn btn-secondary">
+      &larr; Back to Questions
+    </a>
+  </div>
+
+  <div class="card">
+    <form action="{{ url_for('admin_add_question') }}" method="POST">
+      <!-- Question Text -->
+      <div class="form-group">
+        <label class="form-label" for="question_text">Question Text <span style="color: var(--danger);">*</span></label>
+        <input type="text" id="question_text" name="question_text" class="form-control" placeholder="e.g. How satisfied are you with our delivery speed?" required />
+      </div>
+
+      <!-- Question Type -->
+      <div class="form-group">
+        <label class="form-label" for="question_type">Question Type <span style="color: var(--danger);">*</span></label>
+        <select id="question_type" name="question_type" class="form-control" required>
+          <option value="radio" selected>Multiple Choice (Single Answer - Radio)</option>
+          <option value="checkbox">Multiple Choice (Multiple Answers - Checkbox)</option>
+          <option value="yes_no">Yes / No Question</option>
+          <option value="text">Short Text Response</option>
+          <option value="textarea">Long Textarea Response</option>
+          <option value="rating">1 to 5 Rating Scale</option>
+        </select>
+      </div>
+
+      <!-- Dynamic Options Section (For radio / checkbox) -->
+      <div id="options-section" class="form-group" style="background: var(--bg-alt); padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border-color); margin-bottom: 1.5rem;">
+        <label class="form-label" style="display: flex; justify-content: space-between; align-items: center;">
+          <span>Answer Options</span>
+          <button type="button" id="add-option-btn" class="btn btn-secondary btn-sm" style="font-size: 0.8rem;">
+            + Add Option Row
+          </button>
+        </label>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.75rem;">
+          Specify the selectable choices for respondents:
+        </p>
+
+        <div id="dynamic-options-container">
+          <div class="option-row form-group" style="display: flex; gap: 0.5rem; margin-bottom: 0.5rem;">
+            <input type="text" name="options[]" class="form-control" placeholder="Option 1 (e.g. Very Satisfied)" required />
+            <button type="button" class="btn btn-secondary btn-sm remove-option-btn" title="Remove" style="color: var(--danger); font-size: 1.1rem; padding: 0 0.8rem;">&times;</button>
+          </div>
+          <div class="option-row form-group" style="display: flex; gap: 0.5rem; margin-bottom: 0.5rem;">
+            <input type="text" name="options[]" class="form-control" placeholder="Option 2 (e.g. Satisfied)" required />
+            <button type="button" class="btn btn-secondary btn-sm remove-option-btn" title="Remove" style="color: var(--danger); font-size: 1.1rem; padding: 0 0.8rem;">&times;</button>
+          </div>
+          <div class="option-row form-group" style="display: flex; gap: 0.5rem; margin-bottom: 0.5rem;">
+            <input type="text" name="options[]" class="form-control" placeholder="Option 3 (e.g. Neutral)" />
+            <button type="button" class="btn btn-secondary btn-sm remove-option-btn" title="Remove" style="color: var(--danger); font-size: 1.1rem; padding: 0 0.8rem;">&times;</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Settings Flags -->
+      <div style="display: flex; gap: 2rem; margin-bottom: 2rem; flex-wrap: wrap;">
+        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+          <input type="checkbox" name="is_required" value="1" checked style="width: 18px; height: 18px; accent-color: var(--primary);" />
+          <span style="font-weight: 600; font-size: 0.95rem;">Required question</span>
+        </label>
+
+        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+          <input type="checkbox" name="is_active" value="1" checked style="width: 18px; height: 18px; accent-color: var(--primary);" />
+          <span style="font-weight: 600; font-size: 0.95rem;">Active (Visible on public survey)</span>
+        </label>
+      </div>
+
+      <!-- Submit -->
+      <div style="display: flex; justify-content: flex-end; gap: 1rem;">
+        <a href="{{ url_for('admin_questions') }}" class="btn btn-secondary">Cancel</a>
+        <button type="submit" class="btn btn-primary btn-lg">Save Question to Cosmos DB</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

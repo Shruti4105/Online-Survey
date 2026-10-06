@@ -1,0 +1,93 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}Response Details - {{ response.id }} | Admin Portal{% endblock %}
+
+{% block admin_content %}
+<div class="container-narrow" style="margin: 0 auto;">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+    <div>
+      <h1 class="card-title" style="font-size: 1.85rem; font-weight: 800; color: #0f172a;">Response Submission Details</h1>
+      <p class="card-subtitle">Document ID: <code>{{ response.id }}</code> in Cosmos DB.</p>
+    </div>
+    <a href="{{ url_for('admin_responses') }}" class="btn btn-secondary">
+      &larr; Back to Responses List
+    </a>
+  </div>
+
+  <!-- Customer Metadata Card -->
+  <div class="card" style="border-left: 4px solid var(--primary);">
+    <div class="card-header" style="border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem;">
+      <h2 class="card-title" style="font-size: 1.2rem;">Customer Information</h2>
+      <span class="badge badge-type">Submitted {{ response.submitted_at[:19] | replace('T', ' ') if response.submitted_at else 'N/A' }} UTC</span>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.25rem; margin-top: 1rem;">
+      <div>
+        <label class="form-label" style="color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase;">Customer Name</label>
+        <div style="font-weight: 700; font-size: 1.1rem;">{{ response.name }}</div>
+      </div>
+      <div>
+        <label class="form-label" style="color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase;">Email Address</label>
+        <div><a href="mailto:{{ response.email }}" style="color: var(--primary); text-decoration: none; font-weight: 600;">{{ response.email }}</a></div>
+      </div>
+      <div>
+        <label class="form-label" style="color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase;">Phone Number</label>
+        <div>{{ response.phone or 'Not Provided' }}</div>
+      </div>
+      <div>
+        <label class="form-label" style="color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase;">Attached File</label>
+        <div>
+          {% if response.attachment %}
+            <a href="{{ url_for('view_attachment', filename=response.attachment) }}" target="_blank" rel="noopener noreferrer" class="badge badge-active" style="text-decoration: none; display: inline-flex; align-items: center; gap: 4px; padding: 0.35rem 0.75rem; font-size: 0.85rem;">
+              &#128193; View Attachment
+            </a>
+          {% else %}
+            <span style="color: var(--text-muted); font-size: 0.9rem;">None</span>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Answer Breakdown -->
+  <div class="card">
+    <div class="card-header" style="border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem;">
+      <h2 class="card-title" style="font-size: 1.2rem;">Submitted Answers</h2>
+      <span style="color: var(--text-muted); font-size: 0.9rem;">{{ parsed_answers | length }} questions recorded</span>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 1.5rem; margin-top: 1.25rem;">
+      {% for item in parsed_answers %}
+        <div style="background: var(--bg-alt); padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; margin-bottom: 0.6rem;">
+            <div style="font-weight: 700; font-size: 1rem; color: var(--text-main);">
+              <span style="color: var(--primary); margin-right: 4px;">Q{{ loop.index }}.</span> {{ item.question_text }}
+            </div>
+            <span class="badge badge-type" style="font-size: 0.7rem;">{{ item.type }}</span>
+          </div>
+
+          <div style="padding: 0.75rem 1rem; background: #fff; border-radius: var(--radius-sm); border: 1px solid var(--border-color); font-size: 0.95rem;">
+            {% if item.answer is iterable and item.answer is not string %}
+              <div style="display: flex; flex-wrap: wrap; gap: 0.4rem;">
+                {% for choice in item.answer %}
+                  <span class="badge badge-active" style="background: var(--primary-light); color: var(--primary-dark); font-size: 0.85rem; padding: 0.3rem 0.6rem;">
+                    &#10003; {{ choice }}
+                  </span>
+                {% endfor %}
+              </div>
+            {% elif item.answer %}
+              <div style="color: var(--text-main); font-weight: 500;">
+                {{ item.answer }}
+              </div>
+            {% else %}
+              <div style="color: var(--text-light); font-style: italic;">
+                (No answer provided)
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

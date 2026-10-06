@@ -1,0 +1,90 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}Admin Portal | Online Survey Application{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+</head>
+<body style="background-color: #f1f5f9;">
+  <!-- Admin Navbar -->
+  <header class="navbar" style="background: #0f172a; border-bottom: 1px solid #1e293b;">
+    <div class="container container-wide nav-container">
+      <a href="{{ url_for('admin_dashboard') }}" class="brand-link" style="color: #fff;">
+        <div class="brand-icon" style="background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%);">&#9881;</div>
+        <span>SurveyPulse <span style="font-size: 0.8rem; font-weight: 500; color: #94a3b8; margin-left: 4px;">ADMIN</span></span>
+      </a>
+
+      <nav>
+        <ul class="nav-menu">
+          <li>
+            <a href="{{ url_for('admin_dashboard') }}" class="nav-link" style="color: #e2e8f0;">Dashboard</a>
+          </li>
+          <li>
+            <a href="{{ url_for('admin_questions') }}" class="nav-link" style="color: #e2e8f0;">Questions</a>
+          </li>
+          <li>
+            <a href="{{ url_for('admin_responses') }}" class="nav-link" style="color: #e2e8f0;">Responses</a>
+          </li>
+          <li>
+            <a href="{{ url_for('survey') }}" target="_blank" class="nav-link" style="color: #a5b4fc;">&#8599; View Live Survey</a>
+          </li>
+
+          {% if current_user %}
+            <li class="nav-user" style="border-left-color: #334155;">
+              <span class="user-badge" style="background: #1e293b; color: #f8fafc;">
+                &#128100; {{ current_user.name }}
+              </span>
+              <a href="{{ url_for('logout') }}" class="btn btn-secondary btn-sm" style="background: #334155; color: #fff; border-color: #475569;">
+                Logout
+              </a>
+            </li>
+          {% endif %}
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Flash Messages -->
+  <div class="container container-wide flash-container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }}">
+            <span>{{ message }}</span>
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+  </div>
+
+  <!-- Admin Main Body -->
+  <main style="padding-top: 1.5rem; padding-bottom: 4rem;">
+    <div class="container container-wide">
+      {% block admin_content %}{% endblock %}
+    </div>
+  </main>
+
+  <!-- Admin Footer -->
+  <footer class="footer" style="background: #fff; border-top: 1px solid var(--border-color);">
+    <div class="container container-wide" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+      <div>
+        <span>&copy; {{ current_year }} Online Survey Admin Portal &bull; Azure Cosmos DB &amp; Azure Files Integration</span>
+      </div>
+      <div>
+        {% if cosmos_connected %}
+          <span class="badge badge-active">&#10003; Cosmos DB Connected</span>
+        {% else %}
+          <span class="badge badge-inactive">&#9888; Local Storage Mode</span>
+        {% endif %}
+      </div>
+    </div>
+  </footer>
+
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,160 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}Dashboard | Admin Portal{% endblock %}
+
+{% block admin_content %}
+<!-- Dashboard Header & Actions -->
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+  <div>
+    <h1 class="card-title" style="font-size: 1.85rem; font-weight: 800; color: #0f172a;">Executive Analytics Dashboard</h1>
+    <p class="card-subtitle">Real-time survey performance, active Cosmos DB configurations, and customer responses.</p>
+  </div>
+  <div style="display: flex; gap: 0.75rem;">
+    <a href="{{ url_for('admin_add_question') }}" class="btn btn-primary">
+      <span>+ Add New Question</span>
+    </a>
+    <a href="{{ url_for('admin_responses') }}" class="btn btn-secondary">
+      <span>View All Responses</span>
+    </a>
+  </div>
+</div>
+
+<!-- Metrics Overview Cards -->
+<div class="metrics-grid">
+  <div class="metric-card">
+    <div class="metric-icon indigo">&#128221;</div>
+    <div>
+      <div class="metric-val">{{ total_responses }}</div>
+      <div class="metric-lbl">Total Responses</div>
+    </div>
+  </div>
+
+  <div class="metric-card">
+    <div class="metric-icon emerald">&#10004;</div>
+    <div>
+      <div class="metric-val">{{ active_count }}</div>
+      <div class="metric-lbl">Active Questions</div>
+    </div>
+  </div>
+
+  <div class="metric-card">
+    <div class="metric-icon amber">&#9208;</div>
+    <div>
+      <div class="metric-val">{{ inactive_count }}</div>
+      <div class="metric-lbl">Inactive Questions</div>
+    </div>
+  </div>
+
+  <div class="metric-card">
+    <div class="metric-icon purple">&#9881;</div>
+    <div>
+      <div class="metric-val">{{ total_questions }}</div>
+      <div class="metric-lbl">Total Questions</div>
+    </div>
+  </div>
+</div>
+
+<!-- Response Statistics Breakdown -->
+<div class="card">
+  <div class="card-header" style="border-bottom: 1px solid var(--border-color); padding-bottom: 1rem;">
+    <div>
+      <h2 class="card-title" style="font-size: 1.25rem;">Question Response Statistics</h2>
+      <p class="card-subtitle">Aggregated answer counts and percentage distributions.</p>
+    </div>
+  </div>
+
+  {% if stats %}
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 2rem; margin-top: 1rem;">
+      {% for q_id, data in stats.items() %}
+        <div style="background: var(--bg-alt); padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem; gap: 0.5rem;">
+            <strong style="font-size: 0.95rem; color: var(--text-main); line-height: 1.4;">{{ data.question }}</strong>
+            <span class="badge badge-type">{{ data.type }}</span>
+          </div>
+
+          {% if data.total_answered > 0 %}
+            {% for item in data.breakdown %}
+              <div class="stat-item">
+                <div class="stat-label-wrap">
+                  <span style="color: var(--text-muted);">{{ item.option }}</span>
+                  <span><strong>{{ item.count }}</strong> ({{ item.percent }}%)</span>
+                </div>
+                <div class="stat-bar-track">
+                  <div class="stat-bar-fill" style="width: {{ item.percent }}%;"></div>
+                </div>
+              </div>
+            {% endfor %}
+            <div style="text-align: right; font-size: 0.8rem; color: var(--text-light); margin-top: 0.5rem;">
+              Total Answers: {{ data.total_answered }}
+            </div>
+          {% else %}
+            <div style="color: var(--text-muted); font-size: 0.85rem; padding: 1rem 0; text-align: center;">
+              No answers submitted for this question yet.
+            </div>
+          {% endif %}
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p style="color: var(--text-muted); padding: 1rem 0;">No question statistics available.</p>
+  {% endif %}
+</div>
+
+<!-- Recent Responses Table -->
+<div class="card">
+  <div class="card-header" style="border-bottom: 1px solid var(--border-color); padding-bottom: 1rem;">
+    <div>
+      <h2 class="card-title" style="font-size: 1.25rem;">Recent Submissions</h2>
+      <p class="card-subtitle">The latest 5 survey responses stored in Cosmos DB.</p>
+    </div>
+    <a href="{{ url_for('admin_responses') }}" class="btn btn-secondary btn-sm">View All ({{ total_responses }})</a>
+  </div>
+
+  {% if recent_responses %}
+    <div class="table-responsive">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Response ID</th>
+            <th>Customer Name</th>
+            <th>Email</th>
+            <th>Attachment</th>
+            <th>Submitted (UTC)</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for r in recent_responses %}
+            <tr>
+              <td><code>{{ r.id }}</code></td>
+              <td><strong>{{ r.name }}</strong></td>
+              <td>{{ r.email }}</td>
+              <td>
+                {% if r.attachment %}
+                  <a href="{{ url_for('view_attachment', filename=r.attachment) }}" target="_blank" rel="noopener noreferrer" class="badge badge-active" style="text-decoration: none; display: inline-flex; align-items: center; gap: 4px;" title="Open attachment">
+                    &#128193; View
+                  </a>
+                {% else %}
+                  <span style="color: var(--text-light);">&mdash;</span>
+                {% endif %}
+              </td>
+              <td style="color: var(--text-muted); font-size: 0.85rem;">{{ r.submitted_at[:19] | replace('T', ' ') if r.submitted_at else 'N/A' }}</td>
+              <td>
+                <a href="{{ url_for('admin_response_detail', response_id=r.id) }}" class="btn btn-secondary btn-sm">
+                  View Details
+                </a>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div style="text-align: center; padding: 2rem; color: var(--text-muted);">
+      <div style="font-size: 2rem; margin-bottom: 0.5rem;">&#128221;</div>
+      <p>No customer responses submitted yet.</p>
+      <a href="{{ url_for('survey') }}" target="_blank" class="btn btn-primary btn-sm" style="margin-top: 1rem;">Take Test Survey</a>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}
